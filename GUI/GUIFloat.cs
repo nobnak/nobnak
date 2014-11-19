@@ -91,10 +91,10 @@ namespace nobnak.GUI {
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(_title);
 			if ((_flags & Type.IsColor) != 0) {
-				var prevColor = GUI.color;
-				GUI.color = _data.Value;
+				var prevColor = UnityEngine.GUI.color;
+				UnityEngine.GUI.color = _data.Value;
 				GUILayout.Label("●▲■");
-				GUI.color = prevColor;
+				UnityEngine.GUI.color = prevColor;
 			}
 			_data = DrawTextFields(_data);
 			GUILayout.EndHorizontal();
