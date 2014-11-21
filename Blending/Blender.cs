@@ -395,9 +395,11 @@ namespace nobnak.Blending {
 				LoadMask(SelectedScreen());
 			}
 
+			_uiN.Value = Mathf.Clamp(_uiN.Value, 1, 4);
+			_uiM.Value = Mathf.Clamp(_uiM.Value, 1, 4);
 			if (_uiN.Value != _nCols || _uiM.Value != _nRows) {
-				_uiN.Value = _nCols = Mathf.Max (1, _uiN.Value);
-				_uiM.Value = _nRows = Mathf.Max (1, _uiM.Value);
+				_uiN.Value = _nCols = _uiN.Value;
+				_uiM.Value = _nRows = _uiM.Value;
 				data.Reset (_uiN.Value, _uiM.Value);
 			}
 
