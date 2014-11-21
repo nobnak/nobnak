@@ -13,7 +13,10 @@ namespace nobnak.Blending {
 		public const int DEPTH_CAPTURE = 90;
 		public const int DEPTH_BLEND = 91;
 		public const int DEPTH_MASK = 92;
+		public const int WINDOW_ID = 0;
+
 		public const string SHADER_GAMMA = "_Gamma";
+		public static readonly Vector2 WINDOW_SIZE = new Vector2(500f, 300f);
 		public static readonly GUILayoutOption TEXT_WIDTH = GUILayout.Width(60f);
 
 		public static readonly int[] SCREEN_INDICES = new int[]{
@@ -46,6 +49,7 @@ namespace nobnak.Blending {
 		private int _debugMode = 0;
 		private int _nCols;
 		private int _nRows;
+		private Rect _guiWindowPos;
 		private UIInt _uiN;
 		private UIInt _uiM;
 		private UIFloat[] _uiHBlendings;
@@ -84,18 +88,22 @@ namespace nobnak.Blending {
 				UpdateMesh();
 				UpdateGUI();
 			}
-
+			
+			blendMat.mainTexture = _capture.GetTarget();
+			maskMat.mainTexture = _blend.GetTarget();
 			blendMat.SetFloat(SHADER_GAMMA, 1f / data.Gamma);
 		}
 		void OnGUI() {
 			if (_debugMode == 0)
 				return;
 
-			var uiSize = new Vector2(600f, 400f);
-			GUILayout.BeginArea(new Rect(0.5f * (Screen.width - uiSize.x), 0.5f * (Screen.height - uiSize.y), uiSize.x, uiSize.y));
+			_guiWindowPos = GUILayout.Window(WINDOW_ID, _guiWindowPos, DrawWindow, "Blending & Masking");
+		}
+
+		void DrawWindow(int id) {
 			GUILayout.BeginHorizontal();
 
-			GUILayout.BeginVertical(GUILayout.Width(uiSize.x * 0.49f));
+			GUILayout.BeginVertical(GUILayout.Width(WINDOW_SIZE.x * 0.45f));
 			GUILayout.Label("---- Blending ----");
 			GUILayout.BeginHorizontal();
 			GUILayout.Label(" N x M");
@@ -121,7 +129,9 @@ namespace nobnak.Blending {
 			GUILayout.EndHorizontal();
 			GUILayout.EndVertical();
 
-			GUILayout.BeginVertical(GUILayout.Width(uiSize.x * 0.49f));
+			GUILayout.FlexibleSpace();
+
+			GUILayout.BeginVertical(GUILayout.Width(WINDOW_SIZE.x * 0.45f));
 			GUILayout.Label("---- Mask ----");
 			GUILayout.Label("Select Screen");
 			var tmpSelectedMask = GUILayout.SelectionGrid(_selectedMask, _maskSelections, _nCols);
@@ -160,7 +170,8 @@ namespace nobnak.Blending {
 			GUILayout.EndVertical();
 
 			GUILayout.EndHorizontal();
-			GUILayout.EndArea();
+
+			UnityEngine.GUI.DragWindow();
 		}
 
 		void CheckInit () {
@@ -221,33 +232,14 @@ namespace nobnak.Blending {
 			}
 
 			data.CheckInit();
-
-			blendMat.mainTexture = _capture.GetTarget();
-			maskMat.mainTexture = _blend.GetTarget();
+			_nCols = data.ColOverlaps.Length + 1;
+			_nRows = data.RowOverlaps.Length + 1;
 
 			var layerFlags = (1 << LAYER_BLEND) | (1 << LAYER_MASK);
 			foreach (var cam in Camera.allCameras)
 				cam.cullingMask &= ~layerFlags;
 			_blend.camera.cullingMask = 1 << LAYER_BLEND;
 			_maskCam.camera.cullingMask = 1 << LAYER_MASK;
-
-			_nCols = data.ColOverlaps.Length + 1;
-			_nRows = data.RowOverlaps.Length + 1;
-			if (_uiN == null)
-				_uiN = new UIInt(_nCols);
-			if (_uiM == null)
-				_uiM = new UIInt(_nRows);
-			if (_uiHBlendings == null)
-				_uiHBlendings = new UIFloat[0];
-			if (_uiVBlendings == null)
-				_uiVBlendings = new UIFloat[0];
-			if (_uiGamma == null)
-				_uiGamma = new UIFloat(data.Gamma);
-			if (_uiMasks == null) {
-				_uiMasks = new UIFloat[8];
-				LoadMask(SelectedScreen());
-			}
-
 		}
 
 		void UpdateMesh() {
@@ -391,6 +383,18 @@ namespace nobnak.Blending {
 		}
 
 		void UpdateGUI () {
+			if (_uiN == null) {
+				_guiWindowPos = new Rect(0.5f * (Screen.width - WINDOW_SIZE.x), 0.5f * (Screen.height - WINDOW_SIZE.y), WINDOW_SIZE.x, WINDOW_SIZE.y);
+				
+				_uiN = new UIInt(_nCols);
+				_uiM = new UIInt(_nRows);
+				_uiHBlendings = new UIFloat[0];
+				_uiVBlendings = new UIFloat[0];
+				_uiGamma = new UIFloat(data.Gamma);
+				_uiMasks = new UIFloat[8];
+				LoadMask(SelectedScreen());
+			}
+
 			if (_uiN.Value != _nCols || _uiM.Value != _nRows) {
 				_uiN.Value = _nCols = Mathf.Max (1, _uiN.Value);
 				_uiM.Value = _nRows = Mathf.Max (1, _uiM.Value);
