@@ -54,11 +54,12 @@ namespace nobnak.GUI {
 		[System.Flags]
 		public enum Type { Default = 0, WithSlider, IsColor }
 
+		public UIVector Data { get; private set; }
+
 		private int _initialized;
 		private Type _flags;
 		
 		private string _title;
-		private UIVector _data;
 		private Vector4 _min;
 		private Vector4 _max;
 		private GUILayoutOption _textFieldWidth;
@@ -79,7 +80,7 @@ namespace nobnak.GUI {
 			_flags = flags;
 
 			this._title = title;
-			this._data = new UIVector(value);
+			this.Data = new UIVector(value);
 			this._min = min;
 			this._max = max;
 			this._textFieldWidth = textFieldWidth;
@@ -92,16 +93,16 @@ namespace nobnak.GUI {
 			GUILayout.Label(_title);
 			if ((_flags & Type.IsColor) != 0) {
 				var prevColor = UnityEngine.GUI.color;
-				UnityEngine.GUI.color = _data.Value;
+				UnityEngine.GUI.color = Data.Value;
 				GUILayout.Label("●▲■");
 				UnityEngine.GUI.color = prevColor;
 			}
-			_data = DrawTextFields(_data);
+			Data = DrawTextFields(Data);
 			GUILayout.EndHorizontal();
 
 			if ((_flags & Type.WithSlider) != 0)
-				_data.Value = DrawSliders(_data.Value);
-			return _data.Value;
+				Data.Value = DrawSliders(Data.Value);
+			return Data.Value;
 		}
 
 		UIVector DrawTextFields (UIVector data) {
