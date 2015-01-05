@@ -20,7 +20,7 @@ namespace nobnak.Geometry {
 					continue;
 				
 				mfHitBounds.Add(new BoundsDistance(){ mf = mf, distance = dist });
-				Debug.Log("Candidate (Bounds) : " + mf.gameObject.name);
+				//Debug.Log("Candidate (Bounds) : " + mf.gameObject.name);
 			}
 			mfHitBounds.Sort((x, y) => (x.distance < y.distance ? -1 : 1));
 			
