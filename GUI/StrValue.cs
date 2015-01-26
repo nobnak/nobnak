@@ -75,6 +75,12 @@ namespace nobnak.GUI {
 	public struct StrVector {
 		private StrFloat _x, _y, _z, _w;
 
+		public static implicit operator StrVector(Vector2 initValue) {
+			return (StrVector)((Vector4)initValue);
+		}
+		public static implicit operator StrVector(Vector3 initValue) {
+			return (StrVector)((Vector4)initValue);
+		}
 		public static implicit operator StrVector(Vector4 initValue) {
 			var gv = default(StrVector);
 			gv.Init(initValue);
