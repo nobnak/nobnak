@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 
 namespace nobnak.Config {
 
@@ -34,8 +33,9 @@ namespace nobnak.Config {
 			return TryGet(key, out value) ? float.Parse(value) : defaultValue;
 		}
 
+		#if !NETFX_CORE
 		public static ConfigFile Load(string path) {
-			using (var reader = File.OpenText(path)) {
+			using (var reader = System.IO.File.OpenText(path)) {
 				var config = new ConfigFile();
 
 				string line;
@@ -54,5 +54,6 @@ namespace nobnak.Config {
 				return config;
 			}
 		}
+		#endif
 	}
 }
