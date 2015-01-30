@@ -11,9 +11,11 @@ namespace nobnak.Collection {
 			expanded[at] = newone;
 			list = expanded;
 		}
-		public static void Remove<T>(ref T[] list, int at) {
+		public static T Remove<T>(ref T[] list, int at) {
+			var oldone = list[at];
 			System.Array.Copy(list, at + 1, list, at, list.Length - (at + 1));
 			System.Array.Resize(ref list, list.Length - 1);
+			return oldone;
 		}
 	}
 }
