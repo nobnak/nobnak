@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace nobnak.Geometry {
 
-	public static class CatmullSpline {
+	public static class CatmullSplineUtil {
 
 		public static Vector3 Position(float t, System.Func<int, Vector3> CP) {
 			var i = Mathf.FloorToInt(t);
