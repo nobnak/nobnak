@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections;
 using nobnak.Geometry;
 using System.Text;
+using nobnak.Config;
 
 namespace nobnak.Geometry {
 
@@ -11,7 +12,10 @@ namespace nobnak.Geometry {
     	public const float CIRCLE_IN_RAD = 2f * Mathf.PI;
     	public const float SCALE_GUI = 0.05f;
     	public const float SCALE_PICK = 0.07f;
-    	public const float SCALE_POS = 0.5f;
+		public const float SCALE_POS = 0.5f;
+
+		public const int GIZMO_SMOOTH_LEVEL = 10;
+		public const float NORMALIZE_ANGLE = 1f / 360;
 
     	private int _iSelectedCP = -1;
     	private Tool _lastTool;
@@ -24,9 +28,9 @@ namespace nobnak.Geometry {
     		
     		EditorGUILayout.BeginHorizontal();
     		if (GUILayout.Button("Add")) {
-    			var size = HandleUtility.GetHandleSize(curve.transform.position);
+				var size = 5f;
 				var pos = (_iSelectedCP >= 0) ? curve.Position(_iSelectedCP + 0.5f)
-					: (curve.transform.position + size * Random.onUnitSphere);
+					: (size * Random.onUnitSphere);
 				var newCP = new Spline.ControlPoint(){ position = pos };
     			
     			if (0 <= _iSelectedCP && _iSelectedCP < cps.Length)
@@ -47,10 +51,9 @@ namespace nobnak.Geometry {
     		}
     		EditorGUILayout.EndHorizontal();
     	}
-
 		void OnSceneGUI() {
             var curve = (Spline)target;
-    		var rot = Tools.pivotRotation == PivotRotation.Local ? curve.transform.rotation : Quaternion.identity;
+    		var rot = Quaternion.identity;
 
     		var cps = curve.cps;
     		if (cps != null && cps.Length > 0) {
@@ -85,5 +88,42 @@ namespace nobnak.Geometry {
     			}
     		}
 		}
+		void OnEnable() {
+			SceneView.onSceneGUIDelegate += DrawSceneGUI;
+		}
+		void OnDisable() {
+			SceneView.onSceneGUIDelegate -= DrawSceneGUI;
+		}
+
+		void DrawSceneGUI(SceneView sceneView) { 
+			DrawGizmos();
+			OnSceneGUI(); 
+		}
+		void DrawGizmos() {
+			var spline = (Spline)target;
+			var cps = spline.cps;
+			System.Func<int, Vector3> GetCP = spline.GetCP;
+
+			if (cps == null || cps.Length < 2)
+				return;
+			
+			var dt = 1f / GIZMO_SMOOTH_LEVEL;
+			var startPos = CatmullSplineUtil.Position(0f, GetCP);
+			for (var i = 0; i < cps.Length; i++) {
+				var t = (float)i;
+				for (var j = 0; j < GIZMO_SMOOTH_LEVEL; j++) {
+					var velocity = CatmullSplineUtil.Velosity(t, spline.GetCP);
+					Handles.color = Color.green;
+					Handles.DrawLine(startPos, startPos + 0.5f * velocity.normalized);
+					
+					var endPos = CatmullSplineUtil.Position(t += dt, GetCP);
+					Handles.color = Color.green;
+					Handles.DrawLine(startPos, endPos);
+					startPos = endPos;
+				}
+			}
+		}
+		[MenuItem("Assets/Create/Spline")]
+		public static void CreateSpline() { ScriptableObjUtil.CreateAsset<Spline>(); }
     }
 }
