@@ -25,5 +25,29 @@ namespace nobnak.Config {
 			EditorUtility.FocusProjectWindow();
 			Selection.activeObject = asset;
 		}
+
+		public static void CreateAssetNonGeneric(System.Type T) {
+			var ti = typeof(ScriptableObjUtil);
+			var mi = ti.GetMethod("CreateAsset");
+			mi = mi.MakeGenericMethod(T);
+			mi.Invoke(null, null);
+		}
+				
+		[MenuItem("Assets/Create/ScriptableObject")]
+		static void CreateScriptableObject() {
+			var selected = Selection.activeObject as MonoScript;
+			if (selected == null || !AssetDatabase.Contains(selected)) {
+				Debug.Log("Select ScriptableObject in Assets");
+				return;
+			}
+			
+			var type = selected.GetClass();
+			if (!type.IsSubclassOf(typeof(ScriptableObject))) {
+				Debug.Log("Not a Subclass of ScriptableObject");
+				return;
+			}
+			
+			ScriptableObjUtil.CreateAssetNonGeneric(type);
+		}
 	}
 }
