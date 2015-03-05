@@ -17,6 +17,11 @@ namespace nobnak.Geometry {
 		public const int GIZMO_SMOOTH_LEVEL = 10;
 		public const float NORMALIZE_ANGLE = 1f / 360;
 
+		public const float JET_K_MIN = 0.01f;
+		public const float JET_K_MAX = 0.1f;
+		public const float JET_A = 0.66666f / (JET_K_MIN - JET_K_MAX);
+		public const float JET_B = -JET_A * JET_K_MAX;
+
     	private int _iSelectedCP = -1;
     	private Tool _lastTool;
 
@@ -112,12 +117,11 @@ namespace nobnak.Geometry {
 			for (var i = 0; i < cps.Length; i++) {
 				var t = (float)i;
 				for (var j = 0; j < GIZMO_SMOOTH_LEVEL; j++) {
-					var velocity = CatmullSplineUtil.Velosity(t, spline.GetCP);
-					Handles.color = Color.green;
-					Handles.DrawLine(startPos, startPos + 0.5f * velocity.normalized);
-					
+					var k = CatmullSplineUtil.Curvature(t, spline.GetCP);
+					k = Mathf.Clamp(k, JET_K_MIN, JET_K_MAX);
+					Handles.color = EditorGUIUtility.HSVToRGB(JET_A * k + JET_B, 1f, 1f);
+
 					var endPos = CatmullSplineUtil.Position(t += dt, GetCP);
-					Handles.color = Color.green;
 					Handles.DrawLine(startPos, endPos);
 					startPos = endPos;
 				}
