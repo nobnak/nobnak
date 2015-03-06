@@ -10,7 +10,7 @@ namespace nobnak.Geometry {
 			List<BoundsDistance> mfHitBounds = new List<BoundsDistance>();
 			foreach (var obj in objects) {
 				var mf = obj.GetComponent<MeshFilter>();
-				var renderer = obj.renderer;
+				var renderer = obj.GetComponent<Renderer>();
 				if (!obj.gameObject.activeInHierarchy || mf == null || renderer == null)
 					continue;
 				

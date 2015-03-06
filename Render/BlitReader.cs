@@ -49,7 +49,7 @@ namespace nobnak.Render {
 				_rtex.wrapMode = TextureWrapMode.Clamp;
 				Tex.wrapMode = TextureWrapMode.Clamp;
 
-				camera.targetTexture = _rtex;
+				GetComponent<Camera>().targetTexture = _rtex;
 			}
 		}
 		void ClearTextures() {
