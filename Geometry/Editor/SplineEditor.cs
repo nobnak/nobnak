@@ -136,7 +136,7 @@ namespace nobnak.Geometry {
 				for (var j = 0; j < GIZMO_SMOOTH_LEVEL; j++) {
 					var k = CatmullSplineUtil.Curvature(t, spline.GetCP);
 					k = Mathf.Clamp(k, kMin, kMax);
-					Handles.color = EditorGUIUtility.HSVToRGB(jetA * k + jetB, 1f, 1f);
+					Handles.color = Color.HSVToRGB(jetA * k + jetB, 1f, 1f);
 
 					var endPos = CatmullSplineUtil.Position(t += dt, GetCP);
 					Handles.DrawLine(startPos, endPos);
